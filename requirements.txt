@@ -1,1 +1,2 @@
-psycopg2-binary==2.8.4
+botocore>=1.5.52
+boto3>=1.4.4

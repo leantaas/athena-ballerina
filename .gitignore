@@ -6,3 +6,12 @@ build/
 # Comment out unwanted pycache folder
 __pycache__
 .venv
+
+# virutal-env
+venv
+v-env
+env
+
+# IDEs
+.vscode
+.idea

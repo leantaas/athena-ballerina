@@ -1,15 +1,10 @@
 ![](http://wildgoosefestival.org/wp-content/uploads/2014/06/wild-goose-in-action.jpg)
 
-# SQL migrations for Postgres
-
-```
-PGPASSWORD=top-secret goose ./tests/master_migrations  
-```
-(Assuming you have a Postgres server running on `localhost:5432` with a high-entropy admin password)
+# SQL migrations for AWS Athena
 
 ## Installation
 ```
-pip install postgoose
+pip install athena-ballerina (COMING SOON)
 ```
 
 ## Usage
@@ -46,7 +41,21 @@ Where `migrations_directory` is some directory of form:
   3_down.sql
 ```
 
-Current main difference from Play Framework migrations is that a migration in Goose is all-or-nothing.
+Where migration files can be python-formatted strings. In this example `s3_uri` will be replaced with 
+`s3://some-bucket/path/to/db` if the parameter is specified with the flag `-p s3_uri s3://some-bucket/path/to/db`:
+```hiveql
+CREATE EXTERNAL TABLE partitioned_table (
+    col_a STRING,
+    col_b TIMESTAMP,
+    col_c DATE
+)
+PARTITIONED BY (part_key STRING)
+STORED AS PARQUET
+LOCATION "{s3_uri}/partitioned_table"
+tblproperties ("parquet.compress"="SNAPPY");
+```
+
+Ballerina is all-or-nothing.
 
 E.g. you are on master branch on revision 5 and want to switch to a feature branch whose latest revision is 4'.
 ```
@@ -54,7 +63,9 @@ E.g. you are on master branch on revision 5 and want to switch to a feature bran
        \
          3' <- 4' 
 ```
-Applying migrations through Goose will leave you on either revision 5 (if an error is encountered) or revision 4' (if migration is successful) but not on any of 4, 3, 2, or 3'. 
+Applying migrations through Goose will leave you on either revision 5 (if an error is encountered) or revision 4' 
+(if migration is successful) but not on any of 4, 3, 2, or 3'. 
+
 
 ## Testing on local machine
 

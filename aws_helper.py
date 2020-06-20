@@ -3,6 +3,7 @@ from collections import namedtuple
 from concurrent.futures.thread import ThreadPoolExecutor
 from tempfile import NamedTemporaryFile
 from urllib.parse import urlparse
+import tqdm
 
 
 class AthenaQueryError(ValueError):
@@ -32,9 +33,9 @@ class AthenaInfo(namedtuple('AthenaInfo', 'client database output_uri work_group
     def execute_many(self, queries):
         """Attempts to execute multiple queries in sequence by splitting on semi-colons"""
         parsed_queries = [q.strip('\n ;') for q in queries.split(';')]
-        for q in parsed_queries:
-            if q:
-                self.execute(q)
+        parsed_queries = [q for q in parsed_queries if q]
+        for q in tqdm.tqdm(parsed_queries):
+            self.execute(q)
 
     def execute(self, query):
         """

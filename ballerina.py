@@ -9,6 +9,7 @@ from pathlib import PosixPath
 from typing import Iterable, List, Optional, Set, T, Tuple, Dict
 
 import boto3
+import logging
 
 from aws_helper import AthenaInfo, S3Info, executor
 from version import __version__
@@ -16,12 +17,16 @@ from version import __version__
 Migration = namedtuple('Migration', 'migration_id up_digest down_digest up down')
 FILE_DELIM = ':'
 
+logging.basicConfig(format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s')
+log = logging.getLogger('ballerina')
+log.setLevel(logging.INFO)
+
 
 def get_migration_id(file_name: str) -> int:
     try:
         return int(file_name[:file_name.index('_')])
     except ValueError:
-        print(f'ERROR: File "{file_name}" is not of pattern "(id)_up.sql" or "(id)_down.sql"')
+        log.error(f'File "{file_name}" is not of pattern "(id)_up.sql" or "(id)_down.sql"')
         exit(3)
 
 
@@ -39,7 +44,7 @@ def get_migration_files_filtered(directory: PosixPath) -> List[str]:
 def assert_all_migrations_present(directory: PosixPath) -> None:
     filenames: List[str] = get_migration_files_filtered(directory)
     if not filenames:
-        print(f'Migrations folder {directory} is empty. Exiting gracefully!')
+        log.error(f'Migrations folder {directory} is empty. Exiting gracefully!')
         exit(0)
 
     max_migration_id = get_max_migration_id(filenames)
@@ -56,8 +61,7 @@ def assert_all_migrations_present(directory: PosixPath) -> None:
     )
 
     if extra_files:
-        print('ERROR: Extra files not of pattern "(id)_up.sql" or "(id)_down.sql": ')
-        print(*extra_files, sep='\n')
+        log.error('ERROR: Extra files not of pattern "(id)_up.sql" or "(id)_down.sql": %s', ','.join(extra_files))
         exit(3)
 
 
@@ -130,10 +134,10 @@ def main(migrations_directory: PosixPath, dbname: str, migration_bucket: str, mi
             old_branch = [fill_db_migration(s3, m) for m in old_branch]
             unapply_all(s3, athena, old_branch)
         else:
-            print('\nError:')
-            print('    -a / --auto_apply_down flag is set to false')
-            print('    Failing migrations.')
-            print(f'    Failed at migration number: {old_branch[0].migration_id}')
+            log.error('\nError:')
+            log.error('    -a / --auto_apply_down flag is set to false')
+            log.error('    Failing migrations.')
+            log.error(f'    Failed at migration number: {old_branch[0].migration_id}')
             exit(5)
 
     apply_all(s3, athena, new_branch)
@@ -153,7 +157,8 @@ def unapply_all(s3: S3Info, athena: AthenaInfo, migrations) -> None:
 
 
 def apply_up(s3: S3Info, athena: AthenaInfo, migration: Migration) -> None:
-    print(migration.migration_id, migration.up, end='\n' * 2)
+    log.info(f'Applying {migration.migration_id}_up.sql')
+    log.debug(migration.up)
     athena.execute_many(migration.up)
     file_prefix = get_migration_prefix(s3.prefix, migration)
     s3.write(f'{file_prefix}_up.sql', migration.up)
@@ -161,7 +166,8 @@ def apply_up(s3: S3Info, athena: AthenaInfo, migration: Migration) -> None:
 
 
 def apply_down(s3: S3Info, athena: AthenaInfo, migration: Migration) -> None:
-    print(migration.migration_id, migration.down, end='\n' * 2)
+    log.info(f'Applying {migration.migration_id}_down.sql')
+    log.debug(migration.down)
     file_prefix = get_migration_prefix(s3.prefix, migration)
     athena.execute_many(migration.down)
     s3.delete(f'{file_prefix}_up.sql')
@@ -206,8 +212,11 @@ def _parse_args() -> dict:
     parser.add_argument('-v', '--version', action='version',
                         version='%(prog)s {version}'.format(version=__version__))
 
+    parser.add_argument('-n', '--noisy', '--verbose', default=False, type=str2bool,
+                        help='Print migrations to console (True/False)')
+
     args = parser.parse_args()
-    print(args)
+    log.info(args)
 
     # S3 is a flat structure, so it's easy to specify paths incorrectly. However, the result would be catastrophic.
     assert args.migration_uri.endswith(args.delim), f'The specified URI "{args.migration_uri}" does not end with ' \
@@ -246,7 +255,7 @@ def _get_migrations_directory(pathname: str) -> PosixPath:
     migrations_directory = PosixPath(pathname).absolute()
 
     if not migrations_directory.is_dir():
-        print(f'ERROR: {migrations_directory.as_posix()} is not a directory')
+        log.error(f'{migrations_directory.as_posix()} is not a directory')
         exit(1)
     else:
         return migrations_directory

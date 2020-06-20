@@ -27,7 +27,7 @@ def keys_in_nested_dict(dictionary, *args):
 
 
 class AthenaInfo(namedtuple('AthenaInfo', 'client database output_uri work_group cleanup_client')):
-    TIMEOUT = 1.5
+    HEARTBEAT = 0.5
 
     def execute_many(self, queries):
         """Attempts to execute multiple queries in sequence by splitting on semi-colons"""
@@ -65,7 +65,7 @@ class AthenaInfo(namedtuple('AthenaInfo', 'client database output_uri work_group
                     raise AthenaQueryError(failure_reason)
 
             if state == RUNNING:
-                time.sleep(self.__class__.TIMEOUT)
+                time.sleep(self.__class__.HEARTBEAT)
 
         if self.cleanup_client and keys_in_nested_dict(response, 'ResultConfiguration', 'OutputLocation'):
             s3_uri = response['ResultConfiguration']['OutputLocation']
@@ -88,6 +88,7 @@ class S3Info(namedtuple('S3Conn', 'client bucket prefix')):
                 Key=key,
                 Fileobj=tmp
             )
+            tmp.flush()
             with open(tmp.name, 'r', encoding='utf8') as tmp_reader:
                 return tmp_reader.read()
 

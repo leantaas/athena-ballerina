@@ -280,10 +280,10 @@ def get_db_migration_digests(s3: S3Info) -> List[Migration]:
 
 
 def fill_db_migration(s3: S3Info, migration: Migration, down_only=True) -> Migration:
-    down = s3.read(f'{get_migration_prefix(s3.prefix, migration)}_up.sql')
+    down = s3.read(f'{get_migration_prefix(s3.prefix, migration)}_down.sql')
     up = None
     if not down_only:
-        up = s3.read(f'{get_migration_prefix(s3.prefix, migration)}_down.sql')
+        up = s3.read(f'{get_migration_prefix(s3.prefix, migration)}_up.sql')
     return Migration(migration.migration_id, migration.up_digest, migration.down_digest, up, down)
 
 

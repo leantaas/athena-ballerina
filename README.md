@@ -4,7 +4,7 @@
 
 ## Installation
 ```
-pip install athena-ballerina (COMING SOON)
+pip install athena-ballerina
 ```
 
 ## Usage

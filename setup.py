@@ -11,15 +11,15 @@ from setuptools import find_packages, setup, Command
 
 from version import __version__
 
-NAME = 'postgoose'
-DESCRIPTION = 'SQL migrations for Postgres'
-URL = 'https://github.com/leantaas/postgoose'
+NAME = 'athena-ballerina'
+DESCRIPTION = 'SQL migrations for AWS Athena'
+URL = 'https://github.com/leantaas/athena-ballerina'
 EMAIL = 'opensource@leantaas.com'
-AUTHOR = 'dmb'
+AUTHOR = 'ae'
 REQUIRES_PYTHON = '>=3.6.0'
 VERSION = __version__
 
-REQUIRED = ['psycopg2-binary>=2.8.4'] 
+REQUIRED = ['botocore>=1.5.52', 'boto3>=1.4.4', 'tqdm']
 
 EXTRAS = {}
 
@@ -33,7 +33,8 @@ try:
 except FileNotFoundError:
     long_description = DESCRIPTION
 
-about = { '__version__': VERSION }
+about = {'__version__': VERSION}
+
 
 class UploadCommand(Command):
     """Support setup.py upload."""
@@ -82,9 +83,9 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
-    py_modules=['goose','version'],
+    py_modules=['ballerina', 'aws_helper', 'version'],
     entry_points={
-        'console_scripts': ['goose=goose:main'],
+        'console_scripts': ['ballerina=ballerina:main'],
     },
     install_requires=REQUIRED,
     extras_require=EXTRAS,

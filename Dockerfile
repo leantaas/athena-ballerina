@@ -6,7 +6,6 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 #App Related
 RUN apk add            \ 
-        postgresql-dev \
         gcc            \
         python3-dev    \
         musl-dev       \
@@ -20,7 +19,8 @@ COPY requirements.txt requirements.txt
 RUN pip install --upgrade pip \
   && pip install -r requirements.txt
 
-COPY goose goose
+COPY ballerina ballerina
+COPY aws_helper aws_helper
 COPY docker_start_up docker_start_up
 
 RUN chown -R leantaas:leantaas /opt/leantaas \

@@ -1,4 +1,4 @@
-![](http://wildgoosefestival.org/wp-content/uploads/2014/06/wild-goose-in-action.jpg)
+![ballerina](./ballerina.png)
 
 # SQL migrations for AWS Athena
 

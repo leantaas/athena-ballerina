@@ -9,4 +9,4 @@ done;
 echo
 echo 'Trying to apply migrations'
 
-goose --schema=a_schema tests/master_migrations
+ballerina tests/master_migrations

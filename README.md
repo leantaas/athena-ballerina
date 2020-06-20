@@ -1,4 +1,4 @@
-![ballerina](./ballerina.png)
+![ballerina](https://i.imgur.com/amjbOf6.png)
 
 # SQL migrations for AWS Athena
 
@@ -95,7 +95,7 @@ E.g. you are on master branch on revision 5 and want to switch to a feature bran
        \
          3' <- 4' 
 ```
-Applying migrations through Goose will leave you on either revision 5 (if an error is encountered) or revision 4' 
+Applying migrations through Ballerina will leave you on either revision 5 (if an error is encountered) or revision 4' 
 (if migration is successful) but not on any of 4, 3, 2, or 3'. 
 
 
@@ -105,7 +105,7 @@ Applying migrations through Goose will leave you on either revision 5 (if an err
 
 ## License
 
-Copyright 2018 LeanTaas, Inc. 
+Copyright 2020 LeanTaas, Inc. 
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

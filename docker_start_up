@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 
-cmd = '/opt/leantaas/goose'
+cmd = '/opt/leantaas/ballerina'
 
 if 'DB_HOST' in os.environ:
     cmd += f" --host={os.environ['DB_HOST']} "

@@ -327,5 +327,9 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
-if __name__ == '__main__':
+def cli():
     main(**_parse_args())
+
+
+if __name__ == '__main__':
+    cli()

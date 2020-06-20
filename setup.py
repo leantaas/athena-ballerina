@@ -85,7 +85,7 @@ setup(
     url=URL,
     py_modules=['ballerina', 'aws_helper', 'version'],
     entry_points={
-        'console_scripts': ['ballerina=ballerina:main'],
+        'console_scripts': ['ballerina=ballerina:cli'],
     },
     install_requires=REQUIRED,
     extras_require=EXTRAS,

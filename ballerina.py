@@ -260,23 +260,23 @@ def first(xs: Iterable[T]) -> Optional[T]:
 
 
 def get_db_migration_digests(s3: S3Info) -> List[Migration]:
-    migrations = []
+    migrations = set()
     continuation_token = None
     while True:
         continuation_kwargs = dict(ContinuationToken=continuation_token) if continuation_token else {}
         response = s3.client.list_objects_v2(Bucket=s3.bucket, Prefix=s3.prefix, **continuation_kwargs)
 
         if 'Contents' in response:
-            migrations.extend(
-                [Migration(*parse_migration_prefix(s3.prefix, r['Key']), None, None) for r in response['Contents']]
-            )
+            migrations.update([
+                Migration(*parse_migration_prefix(s3.prefix, r['Key']), None, None) for r in response['Contents']
+            ])
 
         if 'IsTruncated' in response and response['IsTruncated'] and 'NextContinuationToken' in response:
             continuation_token = response['NextContinuationToken']
         else:
             break
 
-    return migrations
+    return list(migrations)
 
 
 def fill_db_migration(s3: S3Info, migration: Migration, down_only=True) -> Migration:

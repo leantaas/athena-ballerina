@@ -10,9 +10,9 @@ class AthenaQueryError(ValueError):
     pass
 
 
-RUNNING = 'RUNNING'
-SUCCESS = 'SUCCEEDED'
-FAILURE = 'FAILED'
+RUNNING = ('QUEUED', 'RUNNING')
+SUCCESS = ('SUCCEEDED', )
+FAILURE = ('FAILED', 'CANCELLED')
 
 
 executor = ThreadPoolExecutor(max_workers=3)
@@ -51,22 +51,20 @@ class AthenaInfo(namedtuple('AthenaInfo', 'client database output_uri work_group
 
         query_exec_id = self.client.start_query_execution(**start_query_params)['QueryExecutionId']
 
-        state = RUNNING
         response = {}
-        while state == RUNNING:
+        state = RUNNING[0]
+        while state in RUNNING:
+            time.sleep(self.__class__.HEARTBEAT)
             response = self.client.get_query_execution(QueryExecutionId=query_exec_id)
             if keys_in_nested_dict(response, 'QueryExecution', 'Status', 'State'):
                 state = response['QueryExecution']['Status']['State']
-                if state == FAILURE:
-                    failure_reason = 'Athena failed to execute query'
+                if state in FAILURE:
+                    failure_reason = f'Athena set query state to {state}. '
                     if 'Query' in response:
                         failure_reason += f": {response['Query']}"
                     if 'StateChangeReason' in response['QueryExecution']['Status']:
                         failure_reason += f". Reason: {response['QueryExecution']['Status']}."
                     raise AthenaQueryError(failure_reason)
-
-            if state == RUNNING:
-                time.sleep(self.__class__.HEARTBEAT)
 
         if self.cleanup_client and keys_in_nested_dict(response, 'ResultConfiguration', 'OutputLocation'):
             s3_uri = response['ResultConfiguration']['OutputLocation']

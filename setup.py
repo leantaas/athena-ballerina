@@ -83,7 +83,7 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
-    py_modules=['ballerina', 'aws_helper', 'version'],
+    py_modules=['ballerina', 'ballerima_aws_helper', 'version'],
     entry_points={
         'console_scripts': ['ballerina=ballerina:cli']
     },

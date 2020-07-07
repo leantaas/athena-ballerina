@@ -11,7 +11,7 @@ from typing import Iterable, List, Optional, Set, T, Tuple, Dict
 import boto3
 import logging
 
-from aws_helper import AthenaInfo, S3Info, executor
+from ballerina_aws_helper import AthenaInfo, S3Info, executor
 from version import __version__
 
 Migration = namedtuple('Migration', 'migration_id up_digest down_digest up down')
